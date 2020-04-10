@@ -59,13 +59,3 @@ class DocSearch():
     def browser_close(self):
         self.browser.close()
         
-
-# search_doc = DocSearch()
-
-# search_doc.search()
-# pages_quantity = search_doc.pages_counter()
-# time.sleep(1)
-# for page in range(2, int(pages_quantity)+ 1):
-#     search_doc.next_page(page)
-# time.sleep(5)
-# search_doc.browser_close()
