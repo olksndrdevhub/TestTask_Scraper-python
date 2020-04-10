@@ -1,17 +1,26 @@
 import selenium
 from selenium import webdriver
-from selenium.webdriver.chrome.options import Options
 from selenium.webdriver.common.keys import Keys
 from selenium.webdriver.support.ui import Select
 import time
 
 SITE_ADDRESS = 'http://www.tauntondeeds.com/Searches/ImageSearch.aspx'
 
+
+#choose which browser you have installed, where "1" - Chrome, "2" - Firefox
+YOUR_BROWSER = 2
+
+
 class DocSearch():
     def __init__(self):
-        opts = Options()
-        opts.headless = True
-        self.browser = webdriver.Chrome(executable_path='chromedriver_linux64/chromedriver', options=opts)
+        if YOUR_BROWSER == 1:
+            opts = webdriver.chrome.options.Options()
+            opts.headless = True
+            self.browser = webdriver.Chrome(executable_path='chromedriver_linux64/chromedriver', options=opts)
+        elif YOUR_BROWSER == 2:
+            opts = webdriver.firefox.options.Options()
+            opts.headless = True
+            self.browser = webdriver.Firefox(executable_path='geckodriver_linux64/geckodriver', options=opts)
         self.browser.get(SITE_ADDRESS)
         time.sleep(4)
 
