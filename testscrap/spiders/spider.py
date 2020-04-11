@@ -2,19 +2,21 @@ import scrapy
 from scrapy.selector import Selector
 from scrapy.http import Request
 import time
-import re
+from pprint import pprint
+
 
 from ..selenium_driver import DocSearch, SITE_ADDRESS
 
 
 searcher = DocSearch()
 
-class DataSpider(scrapy.Spider):
+class BaseSpider(scrapy.spiders.Spider):
     name = 'dataspider'
     start_urls = (SITE_ADDRESS,)
 
-    def parse(self, response):
-        
+class DataSpider(BaseSpider):
+    
+    def parse(self, response):    
         searcher.search()
         pages_quantity = searcher.pages_counter()
         for page in range(2, int(pages_quantity)+2):
@@ -22,19 +24,55 @@ class DataSpider(scrapy.Spider):
             rows = scrapy_selector.css('tr.gridRow')
             rowsalt = scrapy_selector.css('tr.gridAltRow')
             for row in rows:
-                description = row.css('td:nth-child(8) > span::text').get()
-                print(description)
-                parsed_description = description.split(' ')
-                street_address = parsed_description[-4]+' '+parsed_description[-3]
-                price = None
-                for item in parsed_description:
+                parsed_description = row.css('td:nth-child(8) > span::text').get()
+                splited_description = parsed_description.split(' ')
+                street_address = splited_description[-4]+' '+splited_description[-3]
+                price = 'None'
+                state = 'None'
+                zip_code = 'None'
+                for item in splited_description:
+                    description = parsed_description
                     if '$' in item:
                         price = item
-                        description = description.split(',')[0]
-                        # street_address = parsed_description[-3]+parsed_description[-4]
-                print(parsed_description)
-                print(len(parsed_description))
-                yield {
+                        parsed_description = parsed_description.split(',')
+                        description = parsed_description[0]
+                        li = description.split(' ')
+                        li_reversed = reversed(li)
+                        try:
+                            for item in li_reversed:
+                                if item.isdigit():
+                                    index = li.index(item)
+                                    description = ' '.join(map(str, li[:int(index)]))
+                                    street_address = ' '.join(map(str, li[int(index):]))
+                                    break
+                                elif '-' in item:
+                                    index = li.index(item)
+                                    description = ' '.join(map(str, li[:int(index)+1]))
+                                    street_address = ' '.join(map(str, li[int(index)+1:]))
+                                    break
+                                    
+                        except:
+                            print('smt error')
+
+                    else:
+                        splited_description_reversed = reversed(splited_description)
+                        try:
+                            for item in splited_description_reversed:
+                                if item.isdigit():
+                                    index = splited_description.index(item)
+                                    description = ' '.join(map(str, splited_description[:int(index)]))
+                                    street_address = ' '.join(map(str, splited_description[int(index):]))
+                                    break
+                                elif '-' in item:
+                                    index = splited_description.index(item)
+                                    description = ' '.join(map(str, splited_description[:int(index)+1]))
+                                    street_address = ' '.join(map(str, splited_description[int(index)+1:]))
+                                    break
+                                    
+                        except:
+                            print('smt error')
+
+                yield pprint({
                     'page': page-1,
                     'row': 'row',
                     'date': row.css('td:nth-child(2)::text').get(),
@@ -46,23 +84,57 @@ class DataSpider(scrapy.Spider):
                     'description': description,
                     'cost': price,
                     'street_address': street_address,
-                    'state': row.css('td:nth-child(2)::text').get(),
-                    'zip': row.css('td:nth-child(2)::text').get(),
-                }
+                    'state': state,
+                    'zip': zip_code,
+                })
             for rowalt in rowsalt:
-                description = rowalt.css('td:nth-child(8) > span::text').get()
-                print(description)
-                parsed_description = description.split(' ')
-                street_address = parsed_description[-4]+' '+parsed_description[-3]
-                price = None
-                for item in parsed_description:
+                parsed_description = rowalt.css('td:nth-child(8) > span::text').get()
+                splited_description = parsed_description.split(' ')
+                street_address = splited_description[-4]+' '+splited_description[-3]
+                price = 'None'
+                state = 'None'
+                zip_code = 'None'
+                for item in splited_description:
+                    description = parsed_description
                     if '$' in item:
                         price = item
-                        description = description.split(',')[0]
-                        # street_address =parsed_description[-3]+parsed_description[-4]
-                print(parsed_description)
-                print(len(parsed_description))
-                yield {
+                        parsed_description = parsed_description.split(',')
+                        description = parsed_description[0]
+                        li = description.split(' ')
+                        li_reversed = reversed(li)
+                        try:
+                            for item in li_reversed:
+                                if item.isdigit():
+                                    index = li.index(item)
+                                    description = ' '.join(map(str, li[:int(index)]))
+                                    street_address = ' '.join(map(str, li[int(index):]))
+                                    break
+                                elif '-' in item:
+                                    index = li.index(item)
+                                    description = ' '.join(map(str, li[:int(index)+1]))
+                                    street_address = ' '.join(map(str, li[int(index)+1:]))
+                                    break
+                        except:
+                            print('smt error')
+                    else:
+                        splited_description_reversed = reversed(splited_description)
+                        try:
+                            for item in splited_description_reversed:
+                                if item.isdigit():
+                                    index = splited_description.index(item)
+                                    description = ' '.join(map(str, splited_description[:int(index)]))
+                                    street_address = ' '.join(map(str, splited_description[int(index):]))
+                                    break
+                                elif '-' in item:
+                                    index = splited_description.index(item)
+                                    description = ' '.join(map(str, splited_description[:int(index)+1]))
+                                    street_address = ' '.join(map(str, splited_description[int(index)+1:]))
+                                    break
+                                    
+                        except:
+                            print('smt error')   
+
+                yield pprint({
                     'page': page-1,
                     'row': 'rowalt',
                     'date': rowalt.css('td:nth-child(2)::text').get(),
@@ -74,15 +146,12 @@ class DataSpider(scrapy.Spider):
                     'description': description,
                     'cost': price,
                     'street_address': street_address,
-                    'state': rowalt.css('td:nth-child(2)::text').get(),
-                    'zip': rowalt.css('td:nth-child(2)::text').get(),
-                }
+                    'state': state,
+                    'zip': zip_code,
+                })
+            
             searcher.next_page(page)
-
+            
+            
         time.sleep(5)
         searcher.browser_close()
-        # //*[@id="ctl00_cphMainContent_gvSearchResults"]/tbody/tr[21]/td[1]
-        #ctl00_cphMainContent_gvSearchResults > tbody > tr:nth-child(3) > td:nth-child(1)
-        #ctl00_cphMainContent_gvSearchResults > tbody > tr:nth-child(5) > td:nth-child(1)
-        #ctl00_cphMainContent_gvSearchResults > tbody > tr:nth-child(6) > td:nth-child(1)#ctl00_cphMainContent_gvSearchResults > tbody > tr:nth-child(6)
-        #ctl00_cphMainContent_gvSearchResults_ctl06_lblDescription

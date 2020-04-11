@@ -14,6 +14,10 @@ BOT_NAME = 'testscrap'
 SPIDER_MODULES = ['testscrap.spiders']
 NEWSPIDER_MODULE = 'testscrap.spiders'
 
+#custom settings for print result as json
+# FEED_FORMAT = 'json'
+#to save result in file
+# FEED_URI = 'result.json'
 
 # Crawl responsibly by identifying yourself (and your website) on the user-agent
 #USER_AGENT = 'testscrap (+http://www.yourdomain.com)'
