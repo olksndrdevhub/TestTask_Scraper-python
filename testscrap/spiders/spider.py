@@ -3,6 +3,7 @@ from scrapy.selector import Selector
 from scrapy.http import Request
 import time
 from pprint import pprint
+from datetime import datetime, date
 
 
 from ..selenium_driver import DocSearch, SITE_ADDRESS
@@ -27,13 +28,17 @@ class DataSpider(BaseSpider):
                 parsed_description = row.css('td:nth-child(8) > span::text').get()
                 splited_description = parsed_description.split(' ')
                 street_address = splited_description[-4]+' '+splited_description[-3]
+                date_parsed = row.css('td:nth-child(2)::text').get()
+                date_splited = date_parsed.split('/')
+                date_info = date(year=int(date_splited[-1]), month=int(date_splited[-3]), day=int(date_splited[-2]))
+                date_info = date_info.strftime('"%d/%m/%Y"')
                 price = 'None'
                 state = 'None'
                 zip_code = 'None'
                 for item in splited_description:
                     description = parsed_description
                     if '$' in item:
-                        price = item
+                        price = float(item[1:])
                         parsed_description = parsed_description.split(',')
                         description = parsed_description[0]
                         li = description.split(' ')
@@ -75,7 +80,7 @@ class DataSpider(BaseSpider):
                 yield pprint({
                     'page': page-1,
                     'row': 'row',
-                    'date': row.css('td:nth-child(2)::text').get(),
+                    'date': date_info,
                     'type': row.css('td:nth-child(3)::text').get(),
                     'book': row.css('td:nth-child(4)::text').get(),
                     'page_num': row.css('td:nth-child(5)::text').get(),
@@ -91,13 +96,17 @@ class DataSpider(BaseSpider):
                 parsed_description = rowalt.css('td:nth-child(8) > span::text').get()
                 splited_description = parsed_description.split(' ')
                 street_address = splited_description[-4]+' '+splited_description[-3]
+                date_parsed = row.css('td:nth-child(2)::text').get()
+                date_splited = date_parsed.split('/')
+                date_info = date(year=int(date_splited[-1]), month=int(date_splited[-3]), day=int(date_splited[-2]))
+                date_info = date_info.strftime('"%d/%m/%Y"')
                 price = 'None'
                 state = 'None'
                 zip_code = 'None'
                 for item in splited_description:
                     description = parsed_description
                     if '$' in item:
-                        price = item
+                        price = float(item[1:])
                         parsed_description = parsed_description.split(',')
                         description = parsed_description[0]
                         li = description.split(' ')
@@ -137,7 +146,7 @@ class DataSpider(BaseSpider):
                 yield pprint({
                     'page': page-1,
                     'row': 'rowalt',
-                    'date': rowalt.css('td:nth-child(2)::text').get(),
+                    'date': date_info,
                     'type': rowalt.css('td:nth-child(3)::text').get(),
                     'book': rowalt.css('td:nth-child(4)::text').get(),
                     'page_num': rowalt.css('td:nth-child(5)::text').get(),

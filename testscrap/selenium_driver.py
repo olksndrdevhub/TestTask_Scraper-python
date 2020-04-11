@@ -3,9 +3,10 @@ from selenium import webdriver
 from selenium.webdriver.common.keys import Keys
 from selenium.webdriver.support.ui import Select
 import time
+from datetime import date
 
 SITE_ADDRESS: str = 'http://www.tauntondeeds.com/Searches/ImageSearch.aspx'
-
+TODAY_DATE = date.today()
 
 #choose which browser you have installed, where "1" - Chrome, "2" - Firefox
 YOUR_BROWSER: int = 1
@@ -31,7 +32,7 @@ class DocSearch():
         print(self.input_date_end)
         time.sleep(1)
         self.input_date_start.send_keys('1/1/2020')
-        self.input_date_end.send_keys('10/4/2020')
+        self.input_date_end.send_keys('{}'.format(TODAY_DATE.strftime("%d/%m/%Y")))
         select = Select(self.browser.find_elements_by_id('ctl00_cphMainContent_ddlRLDocumentType_vddlDropDown')[0])
         select.select_by_visible_text('DEED')
         print('OK!')
